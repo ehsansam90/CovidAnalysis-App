@@ -30,9 +30,9 @@ columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','met
 
 st.title('NBA Player Stats Explorer')
 st.markdown("""
- This app performs simple webscraping of NBA player stats data!
+ This app performs simple ... !
  * **Python libraries:** base64, pandas, streamlit
- * **Data source:** [Basketball-reference.com](https://www.basketball-reference.com/).
+ * **Data source:** [Basketball-reference.com](https://apidocs.covidactnow.org/migration/).
  """)
 
 
@@ -52,10 +52,10 @@ selected_state = st.sidebar.selectbox('State', df.state.unique())
 
 #slider for picking a date
 start_time = st.slider(
-    "When do you start?",start_date,end_date,
+    "Select a date in range",start_date,end_date,
     value=end_date,
     format="MM/DD/YY")
-st.write(f"Number of new cases in {str(start_time)} are:  ", df.groupby("date").sum()['actuals.newCases'][str(start_time)])
+st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ", df.groupby("date").sum()['actuals.newCases'][str(start_time)])
 
 
 df.index = pd.to_datetime(df.date)
