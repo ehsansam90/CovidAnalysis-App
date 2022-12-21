@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import datetime
+
 from dotenv import load_dotenv
 
 
@@ -27,29 +28,21 @@ columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','met
 'actuals.hospitalBeds.currentUsageCovid','actuals.vaccinesDistributed','actuals.vaccinationsAdditionalDose',
  'metrics.vaccinationsInitiatedRatio','metrics.vaccinationsCompletedRatio','actuals.deaths']
 
-df.index = pd.to_datetime(df.date)
-df = df[columns]
-# slider for picking a date
-# from datetime import datetime
-# start_time = st.slider(
-#     "When do you start?",datetime(2019, 1, 1),datetime(2021, 1, 1),
-#     value=datetime(2020, 1, 1),
-#     format="MM/DD/YY")
-# st.write("Start time:", start_time)
-
 st.title('NBA Player Stats Explorer')
-
 st.markdown("""
  This app performs simple webscraping of NBA player stats data!
  * **Python libraries:** base64, pandas, streamlit
  * **Data source:** [Basketball-reference.com](https://www.basketball-reference.com/).
  """)
-today = datetime.date.today()
 
+
+
+today = datetime.date.today()
 #st.sidebar.header('User Input Features')
 #selected_year = st.sidebar.selectbox('Year', list(reversed(range(1950, 2020))))
 start_date = st.sidebar.date_input('Start date', today)
 end_date = st.sidebar.date_input('End date', today)
+
 if start_date < end_date:
     st.success('Data from " `%s`" to " `%s` "' % (start_date, end_date))
 else:
@@ -57,11 +50,24 @@ else:
 
 selected_state = st.sidebar.selectbox('State', df.state.unique())
 
+#slider for picking a date
+start_time = st.slider(
+    "When do you start?",start_date,end_date,
+    value=end_date,
+    format="MM/DD/YY")
+st.write(f"Number of new cases in {str(start_time)} are:  ", df.groupby("date").sum()['actuals.newCases'][str(start_time)])
+
+
+df.index = pd.to_datetime(df.date)
+df = df[columns]
 df = df[df.state == selected_state]
 df_result = df[start_date:end_date]
 st.dataframe(df_result)
 
 st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_allow_html=True)
+
+
+
 
 #ploting
 # if st.button('New Cases trend'):
