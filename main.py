@@ -1,12 +1,11 @@
 import os
-
 import streamlit as st
 import pandas as pd
 import base64
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 import datetime
+import numpy as np
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -26,6 +25,7 @@ columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','met
  'actuals.positiveTests','actuals.negativeTests','metrics.testPositivityRatio','actuals.icuBeds.currentUsageCovid',
 'actuals.hospitalBeds.currentUsageCovid','actuals.vaccinesDistributed','actuals.vaccinationsAdditionalDose',
  'metrics.vaccinationsInitiatedRatio','metrics.vaccinationsCompletedRatio','actuals.deaths']
+states = {'AK': 'Alaska', 'AL': 'Alabama', 'AR': 'Arkansas', 'AS': 'American Samoa', 'AZ': 'Arizona', 'CA': 'California',  'CO': 'Colorado', 'CT': 'Connecticut', 'DC': 'District of Columbia',  'DE': 'Delaware', 'FL': 'Florida',  'GA': 'Georgia', 'GU': 'Guam', 'HI': 'Hawaii','IA': 'Iowa','ID': 'Idaho','IL': 'Illinois','IN': 'Indiana','KS': 'Kansas','KY': 'Kentucky','LA': 'Louisiana','MA': 'Massachusetts','MD': 'Maryland','ME': 'Maine','MI': 'Michigan','MN': 'Minnesota','MO': 'Missouri','MP': 'Northern Mariana Islands','MS': 'Mississippi','MT': 'Montana','NA': 'National','NC': 'North Carolina','ND': 'North Dakota','NE': 'Nebraska','NH': 'New Hampshire','NJ': 'New Jersey','NM': 'New Mexico','NV': 'Nevada','NY': 'New York','OH': 'Ohio','OK': 'Oklahoma','OR': 'Oregon','PA': 'Pennsylvania','PR': 'Puerto Rico','RI': 'Rhode Island','SC': 'South Carolina','SD': 'South Dakota','TN': 'Tennessee','TX': 'Texas','UT': 'Utah','VA': 'Virginia','VI': 'Virgin Islands','VT': 'Vermont','WA': 'Washington','WI': 'Wisconsin','WV': 'West Virginia','WY': 'Wyoming'}
 
 st.title('Covid 19 Analysis across US  ')
 st.markdown("""
@@ -132,6 +132,7 @@ if st.button('Intercorrelation Heatmap'):
     mask = np.zeros_like(corr)
     mask[np.triu_indices_from(mask)] = True
     with sns.axes_style("white"):
+        plt.style.use("dark_background")
         f, ax = plt.subplots(figsize=(15, 10))
         ax = sns.heatmap(corr, mask=mask, vmin=-1, vmax=1, annot=True)
     st.pyplot(f)
@@ -151,7 +152,7 @@ df_result = df2.loc[df2['state'].isin(selected_states)][['state','deathRatio','v
 st.write("\n\n3. To perform a comparison on the ratio of vaccinated individuals and the ratio of deaths, you can select any number of states from the sidebar.")
 
 if st.button('Comparison'):
-    st.write('--')
+    st.header(f'Comparison between: {" & ".join([states[state] for state in selected_states])}')
 
     st.bar_chart(df_result.set_index('state'))
     with sns.axes_style("dark"):
