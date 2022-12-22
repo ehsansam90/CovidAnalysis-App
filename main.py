@@ -9,8 +9,6 @@ import numpy as np
 import datetime
 
 from dotenv import load_dotenv
-
-
 load_dotenv()
 
 def filedownload(df,startDate,endDate,state):
@@ -21,6 +19,7 @@ def filedownload(df,startDate,endDate,state):
 
 key = os.getenv("KEY")
 url = "https://api.covidactnow.org/v2/states.timeseries.csv?apiKey=" + key
+url_current = "https://api.covidactnow.org/v2/states.csv?apiKey=" + key
 df = pd.read_csv(url)
 
 columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','metrics.weeklyNewCasesPer100k','metrics.infectionRate',
@@ -28,7 +27,7 @@ columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','met
 'actuals.hospitalBeds.currentUsageCovid','actuals.vaccinesDistributed','actuals.vaccinationsAdditionalDose',
  'metrics.vaccinationsInitiatedRatio','metrics.vaccinationsCompletedRatio','actuals.deaths']
 
-st.title('NBA Player Stats Explorer')
+st.title('Covid 19 Analysis across US  ')
 st.markdown("""
  This app performs simple ... !
  * **Python libraries:** base64, pandas, streamlit
@@ -45,17 +44,25 @@ end_date = st.sidebar.date_input('End date', today)
 
 if start_date < end_date:
     st.success('Data from " `%s`" to " `%s` "' % (start_date, end_date))
+if end_date > datetime.date.today():
+    st.error('End date must fall in today or before')
 else:
     st.error('Error: End date must fall after start date.')
 
 selected_state = st.sidebar.selectbox('State', df.state.unique())
 
 #slider for picking a date
-start_time = st.slider(
-    "Select a date in range",start_date,end_date,
-    value=end_date,
-    format="MM/DD/YY")
-st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ", df.groupby("date").sum()['actuals.newCases'][str(start_time)])
+try:
+    start_time = st.slider(
+        "Select a specific date in range", start_date, end_date,
+        value=end_date,
+        format="MM/DD/YY")
+    st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ",
+             df.groupby("date").sum()['actuals.newCases'][str(start_time)])
+    st.write("\n")
+except:
+    st.error('Values are not correct')
+
 
 
 df.index = pd.to_datetime(df.date)
@@ -66,27 +73,7 @@ st.dataframe(df_result)
 
 st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_allow_html=True)
 
-
-
-
-#ploting
-# if st.button('New Cases trend'):
-#     st.subheader(f'New Cases trend from _{start_date}_ to _{end_date}_')
-#
-#     with sns.axes_style("dark"):
-#         df_graph = df_result[df_result['actuals.newCases'] != 0]
-#         f, ax = plt.subplots(figsize=(7, 5))
-#         ax = sns.lineplot(data=df_graph, x=df_graph.index, y="actuals.newCases")
-#     st.pyplot(f)
-
-# if st.button('All the cases'):
-#     st.subheader(f'New Cases trend from _{start_date}_ to _{end_date}_')
-#
-#     with sns.axes_style("dark"):
-#         df_graph = df_result[df_result['actuals.cases'] != 0]
-#         f, ax = plt.subplots(figsize=(7, 5))
-#         ax = sns.lineplot(data=df_graph, x=df_graph.index, y="actuals.cases")
-#     st.pyplot(f)
+#plotting
 
 col1, col2= st.columns([10,10])
 with col1:
@@ -95,6 +82,7 @@ with col1:
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['actuals.cases'] != 0]
+            plt.style.use("dark_background")
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="actuals.cases")
         st.pyplot(f)
@@ -106,6 +94,7 @@ with col2:
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['actuals.newCases'] != 0]
+            plt.style.use("dark_background")
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="actuals.newCases")
         st.pyplot(f)
@@ -116,6 +105,7 @@ with col3:
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['metrics.testPositivityRatio'] != 0]
+            plt.style.use("dark_background")
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.testPositivityRatio")
         st.pyplot(f)
@@ -126,6 +116,7 @@ with col4:
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['metrics.vaccinationsInitiatedRatio'] != 0]
+            plt.style.use("dark_background")
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.vaccinationsInitiatedRatio")
         st.pyplot(f)
@@ -141,66 +132,40 @@ if st.button('Intercorrelation Heatmap'):
         ax = sns.heatmap(corr, mask=mask, vmin=-1, vmax=1, annot=True)
     st.pyplot(f)
 
-# Web scraping of NBA player stats
-@st.cache
-def load_data(year):
-    url = "https://www.basketball-reference.com/leagues/NBA_" + str(year) + "_per_game.html"
-    html = pd.read_html(url, header=0)
-    df = html[0]
-    raw = df.drop(df[df.Age == 'Age'].index)  # Deletes repeating headers in content
-    raw = raw.fillna(0)
-    playerstats = raw.drop(['Rk'], axis=1)
-    return playerstats
+st.write(df['actuals.newCases'].dropna())
+
+#Current data
+df2 = pd.read_csv(url_current)
+df2['deathRatio'] = (df2['actuals.deaths']/df2.population)*100
+df2.rename(columns={"metrics.vaccinationsCompletedRatio":"vaccinatedRatio"}, inplace=True)
+selected_states = st.sidebar.multiselect('Select States to perform comparison', df2.state.unique(), [])
+df_result = df2.loc[df2['state'].isin(selected_states)][['state','deathRatio','vaccinatedRatio']]
+st.write(df_result)
 
 
-playerstats = load_data(selected_year)
 
-# Sidebar - Team selection
-sorted_unique_team = sorted(playerstats.Tm.unique())
-#selected_team = st.sidebar.multiselect('Team', sorted_unique_team, sorted_unique_team)
+#Copmarison part between selected states
+if st.button('Comparison'):
+    st.write('--')
 
-# Sidebar - Position selection
-unique_pos = ['C', 'PF', 'SF', 'PG', 'SG']
-#selected_pos = st.sidebar.multiselect('Position', unique_pos, unique_pos)
-
-# Filtering data
-df_selected_team = playerstats[(playerstats.Tm.isin(selected_team)) & (playerstats.Pos.isin(selected_pos))]
-
-st.header('Display Player Stats of Selected Team(s)')
-st.write(
-    'Data Dimension: ' + str(df_selected_team.shape[0]) + ' rows and ' + str(df_selected_team.shape[1]) + ' columns.')
-st.dataframe(df_selected_team)
+    st.bar_chart(df_result.set_index('state'))
+    with sns.axes_style("dark"):
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        plt.style.use("dark_background")
+        f, ax = plt.subplots(figsize=(7, 5))
+        df_result.plot(x='state', y=["deathRatio", "vaccinatedRatio"], kind="bar", rot=0)
+    st.pyplot()
 
 
-# Download NBA player stats data
-# https://discuss.streamlit.io/t/how-to-download-file-in-streamlit/1806
-def filedownload(df):
-    csv = df.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64,{b64}" download="playerstats.csv">Download CSV File</a>'
-    return href
+#ChatGPT
 
-
-st.markdown(filedownload(df_selected_team), unsafe_allow_html=True)
-
-# Heatmap
-# if st.button('Intercorrelation Heatmap'):
-#     st.header('Intercorrelation Matrix Heatmap')
-#     df_selected_team.to_csv('output.csv', index=False)
-#     df = pd.read_csv('output.csv')
+# from pyChatGPT import ChatGPT
+# chat_key = os.getenv("CHAT_GPTKEY")
 #
-#     corr = df.corr()
-#     mask = np.zeros_like(corr)
-#     mask[np.triu_indices_from(mask)] = True
-#     with sns.axes_style("white"):
-#         f, ax = plt.subplots(figsize=(7, 5))
-#         ax = sns.heatmap(corr, mask=mask, vmax=1, square=True)
-#     st.pyplot()
+# api = ChatGPT(chat_key)
+# response = api.send_message("hi")
+# st.write(response)
 
-st.line_chart(tickerDF.Close)
 
-st.write("""
-**Volume**""")
-st.line_chart(tickerDF.Volume)
 
 
