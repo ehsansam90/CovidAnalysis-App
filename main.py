@@ -29,9 +29,11 @@ columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','met
 
 st.title('Covid 19 Analysis across US  ')
 st.markdown("""
- This app performs simple ... !
- * **Python libraries:** base64, pandas, streamlit
- * **Data source:** [Basketball-reference.com](https://apidocs.covidactnow.org/migration/).
+ **This web application would provide analysis on real time data related to Covid across all states located in United states**.\n
+ 1. Before beginning the analysis, it is important to specify the time range and location for the data collection. 
+ This can be done by defining the desired time frame and selecting the specific state of interest in the sidebar. 
+ Additionally, the CSV file containing the specified data can also be downloaded for further analysis. 
+ * **Data source:** [covidactnow.org/](https://covidactnow.org/).
  """)
 
 
@@ -54,7 +56,7 @@ selected_state = st.sidebar.selectbox('State', df.state.unique())
 #slider for picking a date
 try:
     start_time = st.slider(
-        "Select a specific date in range", start_date, end_date,
+        "**Select a specific date in range**", start_date, end_date,
         value=end_date,
         format="MM/DD/YY")
     st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ",
@@ -69,11 +71,13 @@ df.index = pd.to_datetime(df.date)
 df = df[columns]
 df = df[df.state == selected_state]
 df_result = df[start_date:end_date]
+st.write("Data table Requested as follows:")
 st.dataframe(df_result)
 
 st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_allow_html=True)
 
 #plotting
+st.write(f"2. Real time analysis from {str(start_date)} to {str(end_date)} in {selected_state} is provided in following:")
 
 col1, col2= st.columns([10,10])
 with col1:
@@ -132,7 +136,6 @@ if st.button('Intercorrelation Heatmap'):
         ax = sns.heatmap(corr, mask=mask, vmin=-1, vmax=1, annot=True)
     st.pyplot(f)
 
-st.write(df['actuals.newCases'].dropna())
 
 #Current data
 df2 = pd.read_csv(url_current)
@@ -140,11 +143,13 @@ df2['deathRatio'] = (df2['actuals.deaths']/df2.population)*100
 df2.rename(columns={"metrics.vaccinationsCompletedRatio":"vaccinatedRatio"}, inplace=True)
 selected_states = st.sidebar.multiselect('Select States to perform comparison', df2.state.unique(), [])
 df_result = df2.loc[df2['state'].isin(selected_states)][['state','deathRatio','vaccinatedRatio']]
-st.write(df_result)
 
 
 
 #Copmarison part between selected states
+
+st.write("\n\n3. To perform a comparison on the ratio of vaccinated individuals and the ratio of deaths, you can select any number of states from the sidebar.")
+
 if st.button('Comparison'):
     st.write('--')
 
