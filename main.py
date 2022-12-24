@@ -41,7 +41,7 @@ st.markdown("""
 today = datetime.date.today()
 #st.sidebar.header('User Input Features')
 #selected_year = st.sidebar.selectbox('Year', list(reversed(range(1950, 2020))))
-start_date = st.sidebar.date_input('Start date', today)
+start_date = st.sidebar.date_input('Start date', (today - datetime.timedelta(days = 30)))
 end_date = st.sidebar.date_input('End date', today)
 
 if start_date < end_date:
@@ -57,7 +57,7 @@ selected_state = st.sidebar.selectbox('State', df.state.unique())
 try:
     start_time = st.slider(
         "**Select a specific date in range**", start_date, end_date,
-        value=end_date,
+        value=start_date,
         format="MM/DD/YY")
     st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ",
              df.groupby("date").sum()['actuals.newCases'][str(start_time)])
