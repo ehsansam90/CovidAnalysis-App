@@ -152,15 +152,20 @@ df_result = df2.loc[df2['state'].isin(selected_states)][['state','deathRatio','v
 st.write("\n\n3. To perform a comparison on the ratio of vaccinated individuals and the ratio of deaths, you can select any number of states from the sidebar.")
 
 if st.button('Comparison'):
-    st.header(f'Comparison between: {" & ".join([states[state] for state in selected_states])}')
+    if selected_states:
+        st.header(f'Comparison between: {" & ".join([states[state] for state in selected_states])}')
 
-    st.bar_chart(df_result.set_index('state'))
-    with sns.axes_style("dark"):
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        plt.style.use("dark_background")
-        f, ax = plt.subplots(figsize=(7, 5))
-        df_result.plot(x='state', y=["deathRatio", "vaccinatedRatio"], kind="bar", rot=0)
-    st.pyplot()
+        st.bar_chart(df_result.set_index('state'))
+        with sns.axes_style("dark"):
+            st.set_option('deprecation.showPyplotGlobalUse', False)
+            plt.style.use("dark_background")
+            f, ax = plt.subplots(figsize=(7, 5))
+            df_result.plot(x='state', y=["deathRatio", "vaccinatedRatio"], kind="bar", rot=0)
+        st.pyplot()
+
+    else:
+         st.error("You need to provide some states first on the side bar for performing Comparison ")
+
 
 
 #ChatGPT
