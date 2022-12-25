@@ -72,20 +72,18 @@ else:
     st.error('Error: End date must fall after start date.')
 
 selected_state = st.sidebar.selectbox('State', df.state.unique())
-st.write(start_date)
-st.write(type(start_date))
 
 #slider for picking a date
-try:
-    start_time = st.slider(
-        "**Select a specific date in range**", start_date, end_date,
-        value=start_date,
-        format="MM/DD/YY")
-    st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ",
-             df.groupby("date").sum()['actuals.newCases'][str(start_time)])
-    st.write("\n")
-except:
-    st.error('Values are not correct')
+# try:
+#     start_time = st.slider(
+#         "**Select a specific date in range**", start_date, end_date,
+#         value=start_date,
+#         format="MM/DD/YY")
+#     st.write(f"Number of new cases in {selected_state} at {str(start_time)} are:  ",
+#              df.groupby("date").sum()['actuals.newCases'][str(start_time)])
+#     st.write("\n")
+# except:
+#     st.error('Values are not correct')
 
 
 
