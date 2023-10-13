@@ -195,7 +195,7 @@ if st.button('Comparison'):
 #
 # api = ChatGPT(chat_key)
 # response = api.send_message("hi")
-# st.write(response)cd
+# st.write(response)
 
 
 
