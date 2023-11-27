@@ -7,10 +7,16 @@ import seaborn as sns
 import datetime
 import numpy as np
 import plotly.graph_objects as go
+from matplotlib.patches import Circle
+
 
 
 from dotenv import load_dotenv
 load_dotenv()
+
+
+
+st.set_page_config(layout="wide")
 
 def filedownload(df,startDate,endDate,state):
     csv = df.to_csv(index=False)
@@ -22,11 +28,12 @@ key = os.getenv("KEY")
 url = "https://api.covidactnow.org/v2/states.timeseries.csv?apiKey=" + key
 url_current = "https://api.covidactnow.org/v2/states.csv?apiKey=" + key
 df = pd.read_csv(url)
+df.to_csv('test_viz.csv')
 
 columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','metrics.weeklyNewCasesPer100k','metrics.infectionRate',
  'actuals.positiveTests','actuals.negativeTests','metrics.testPositivityRatio','actuals.icuBeds.currentUsageCovid',
 'actuals.hospitalBeds.currentUsageCovid','actuals.vaccinesDistributed','actuals.vaccinationsAdditionalDose',
- 'metrics.vaccinationsInitiatedRatio','metrics.vaccinationsCompletedRatio','actuals.deaths']
+ 'metrics.vaccinationsInitiatedRatio','metrics.vaccinationsCompletedRatio','actuals.deaths','actuals.vaccinationsCompleted','date']
 states = {'AK': 'Alaska', 'AL': 'Alabama', 'AR': 'Arkansas', 'AS': 'American Samoa', 'AZ': 'Arizona', 'CA': 'California',  'CO': 'Colorado', 'CT': 'Connecticut', 'DC': 'District of Columbia',  'DE': 'Delaware', 'FL': 'Florida',  'GA': 'Georgia', 'GU': 'Guam', 'HI': 'Hawaii','IA': 'Iowa','ID': 'Idaho','IL': 'Illinois','IN': 'Indiana','KS': 'Kansas','KY': 'Kentucky','LA': 'Louisiana','MA': 'Massachusetts','MD': 'Maryland','ME': 'Maine','MI': 'Michigan','MN': 'Minnesota','MO': 'Missouri','MP': 'Northern Mariana Islands','MS': 'Mississippi','MT': 'Montana','NA': 'National','NC': 'North Carolina','ND': 'North Dakota','NE': 'Nebraska','NH': 'New Hampshire','NJ': 'New Jersey','NM': 'New Mexico','NV': 'Nevada','NY': 'New York','OH': 'Ohio','OK': 'Oklahoma','OR': 'Oregon','PA': 'Pennsylvania','PR': 'Puerto Rico','RI': 'Rhode Island','SC': 'South Carolina','SD': 'South Dakota','TN': 'Tennessee','TX': 'Texas','UT': 'Utah','VA': 'Virginia','VI': 'Virgin Islands','VT': 'Vermont','WA': 'Washington','WI': 'Wisconsin','WV': 'West Virginia','WY': 'Wyoming'}
 
 st.title('🦠Covid 19 Analysis across US 🦠 ')
@@ -50,10 +57,11 @@ dict={"Vaccination Rate":"metrics.vaccinationsInitiatedRatio","infection Rate":"
 
 df_map = df.reset_index()
 df_map_result = df_map[df_map['date'] == str(date_map)]
-df_map_result['text'] = "States: "+df_map_result['state']
+df_map_result.loc[df_map_result.index, 'text'] = "States: " + df_map_result['state']
 fig = go.Figure(data = go.Choropleth(locations=df_map_result['state'], z= df_map_result[dict[selected_feature]].astype(float),
                                    locationmode="USA-states",colorscale='Reds',colorbar_title= selected_feature,text=df_map_result['text']))
-fig.update_layout(title_text = f'Distribution of {selected_feature} at {date_map}', geo_scope='usa')
+fig.update_layout(title_text = f'Distribution of {selected_feature} at {date_map}', geo_scope='usa', height=600, width=1000 )
+
 st.plotly_chart(fig)
 
 
@@ -86,62 +94,114 @@ selected_state = st.sidebar.selectbox('State', df.state.unique())
 #     st.error('Values are not correct')
 
 
+top_10 = ["CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA", "NC", "MI"]
+df_top_10 = df[df['state'].isin(top_10)]
 
-df.index = pd.to_datetime(df.date)
+grouped_data_death = df_top_10.groupby("state")['actuals.deaths'].sum()
+grouped_data_vac = df_top_10.groupby("state")['actuals.vaccinationsCompleted'].sum()
+
+
+st.title('Donut Chart of Total vaccinated and Deaths in top 10 populated States')
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+# Creating the donut chart with a thicker circle using Matplotlib
+ax1.pie(grouped_data_death, labels=grouped_data_death.index, autopct='%1.1f%%', startangle=90, wedgeprops={'linewidth': 5, 'edgecolor': 'white'})
+center_circle = Circle((0, 0), 0.4, color='white')  # Increase the radius to make it thicker
+ax1.add_artist(center_circle)  # Adding a thicker white circle to create a donut chart
+ax1.set_title('Total Deaths by State')
+
+ax2.pie(grouped_data_vac, labels=grouped_data_vac.index, autopct='%1.1f%%', startangle=90, wedgeprops={'linewidth': 5, 'edgecolor': 'white'})
+center_circle = Circle((0, 0), 0.4, color='white')  # Increase the radius to make it thicker
+ax2.add_artist(center_circle)  # Adding a thicker white circle to create a donut chart
+ax2.set_title('Total Vaccinated by State')
+
+plt.tight_layout()
+
+st.pyplot(fig)
+
+
+
+
+result = df.groupby('state').agg({'actuals.cases': 'sum', 'actuals.deaths': 'sum'}).reset_index()
+result['cases'] = result['actuals.cases'] / result['actuals.cases'].sum() * 100
+result['deaths'] = result['actuals.deaths'] / result['actuals.deaths'].sum() * 100
+
+# Streamlit app
+st.title('Side-by-Side Percentage Bar Plot for Aggregated Columns')
+
+fig, ax = plt.subplots(figsize=(20, 10))  # Increased figure width
+
+bars_cases = ax.bar(result['state'], result['cases'], label='Total Cases Percentage', width=0.6, align='edge')  # Increased width
+
+bars_deaths = ax.bar(result['state'], result['deaths'], label='Deaths Percentage', width=-0.6, align='edge', alpha=0.7)  # Increased width
+
+ax.set_xlabel('State')
+ax.set_ylabel('Percentage')
+ax.set_title('Percentage bar for distribution of Total new cases and new death per State')
+ax.legend()
+
+for bar in bars_cases:
+    yval = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom', color='black')
+
+for bar in bars_deaths:
+    yval = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2, yval, round(yval, 2), ha='center', va='bottom', color='black')
+
+st.pyplot(fig)
 df = df[columns]
+df.index = pd.to_datetime(df.date)
 df = df[df.state == selected_state]
 df_result = df[start_date:end_date]
-st.write("Data table Requested as follows:")
-st.dataframe(df_result)
+columns_to_fill = ['actuals.deaths', 'actuals.vaccinationsCompleted']
+df_result[columns_to_fill] = df_result[columns_to_fill].fillna(0)
 
-st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_allow_html=True)
+
 
 #plotting
 st.write(f"2. Real time analysis from {str(start_date)} to {str(end_date)} in {selected_state} is provided in following:")
 
-col1, col2= st.columns([10,10])
+col1, col2, col3= st.columns([10,10,10])
 with col1:
     if st.button('All the cases'):
         st.write(f'New Cases trend from _{start_date}_ to _{end_date}_:')
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['actuals.cases'] != 0]
-            plt.style.use("dark_background")
+            df_graph['actuals.cases'] = df_graph['actuals.cases'].dropna()
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="actuals.cases")
         st.pyplot(f)
 
-
 with col2:
-    if st.button('New Cases trend'):
-        st.write(f'allthe cases from _{start_date}_ to _{end_date}_:')
-
-        with sns.axes_style("dark"):
-            df_graph = df_result[df_result['actuals.newCases'] != 0]
-            plt.style.use("dark_background")
-            f, ax = plt.subplots(figsize=(7, 5))
-            ax = sns.lineplot(data=df_graph, x=df_graph.index, y="actuals.newCases")
-        st.pyplot(f)
-col3,col4 = st.columns([10,10])
-with col3:
     if st.button('Positive tests Ratio'):
         st.write(f'Positive test ratio from _{start_date}_ to _{end_date}_:')
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['metrics.testPositivityRatio'] != 0]
-            plt.style.use("dark_background")
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.testPositivityRatio")
         st.pyplot(f)
+#col3 = st.columns([10,10])
+# with col3:
+#     if st.button('Positive tests Ratioo'):
+#         st.write(f'Positive test ratio from _{start_date}_ to _{end_date}_:')
 
-with col4:
+#         with sns.axes_style("dark"):
+#             df_graph = df_result[df_result['metrics.testPositivityRatio'] != 0]
+#             f, ax = plt.subplots(figsize=(7, 5))
+#             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.testPositivityRatio")
+#         st.pyplot(f)
+
+with col3:
     if st.button('Vaccinated initiated ratio'):
         st.write(f'Vaccinated initiated from _{start_date}_ to _{end_date}_:')
 
         with sns.axes_style("dark"):
             df_graph = df_result[df_result['metrics.vaccinationsInitiatedRatio'] != 0]
-            plt.style.use("dark_background")
             f, ax = plt.subplots(figsize=(7, 5))
+            df_graph['metrics.vaccinationsInitiatedRatio'] = df_graph['metrics.vaccinationsInitiatedRatio'].dropna()
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.vaccinationsInitiatedRatio")
         st.pyplot(f)
 
@@ -152,7 +212,6 @@ if st.button('Intercorrelation Heatmap'):
     mask = np.zeros_like(corr)
     mask[np.triu_indices_from(mask)] = True
     with sns.axes_style("white"):
-        plt.style.use("dark_background")
         f, ax = plt.subplots(figsize=(15, 10))
         ax = sns.heatmap(corr, mask=mask, vmin=-1, vmax=1, annot=True)
     st.pyplot(f)
@@ -186,6 +245,12 @@ if st.button('Comparison'):
     else:
          st.error("You need to provide some states first on the side bar for performing Comparison ")
 
+
+        
+st.write("Data table Requested as follows:")
+st.dataframe(df_result)
+
+st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_allow_html=True)
 
 
 #ChatGPT
