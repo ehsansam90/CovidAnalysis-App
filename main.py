@@ -28,7 +28,6 @@ key = os.getenv("KEY")
 url = "https://api.covidactnow.org/v2/states.timeseries.csv?apiKey=" + key
 url_current = "https://api.covidactnow.org/v2/states.csv?apiKey=" + key
 df = pd.read_csv(url)
-df.to_csv('test_viz.csv')
 
 columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','metrics.weeklyNewCasesPer100k','metrics.infectionRate',
  'actuals.positiveTests','actuals.negativeTests','metrics.testPositivityRatio','actuals.icuBeds.currentUsageCovid',
@@ -261,6 +260,8 @@ st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_a
 # api = ChatGPT(chat_key)
 # response = api.send_message("hi")
 # st.write(response)cd
+
+st.markdown("\n\nCreated by Ehsan")
 
 
 
