@@ -14,7 +14,16 @@ from matplotlib.patches import Circle
 from dotenv import load_dotenv
 load_dotenv()
 
+background_color = """
+    <style>
+        body {
+            background-color: #e6f7ff; /* Set your desired background color */
+        }
+    </style>
+"""
 
+# Display the background color
+st.markdown(background_color, unsafe_allow_html=True)
 
 st.set_page_config(layout="wide")
 
@@ -251,15 +260,6 @@ st.dataframe(df_result)
 
 st.markdown(filedownload(df_result,start_date,end_date,selected_state), unsafe_allow_html=True)
 
-
-#ChatGPT
-
-# from pyChatGPT import ChatGPT
-# chat_key = os.getenv("CHAT_GPTKEY")
-#
-# api = ChatGPT(chat_key)
-# response = api.send_message("hi")
-# st.write(response)cd
 
 st.markdown("\n\nCreated by Ehsan S")
 
