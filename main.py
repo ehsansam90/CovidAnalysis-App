@@ -16,7 +16,12 @@ load_dotenv()
 
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="Covid 19 Analysis across US",
+    page_icon="🦠",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 def filedownload(df,startDate,endDate,state):
     csv = df.to_csv(index=False)
