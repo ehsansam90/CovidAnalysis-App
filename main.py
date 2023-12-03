@@ -195,7 +195,7 @@ with col2:
     if st.button('Positive tests Ratio'):
         st.write(f'Positive test ratio from _{start_date}_ to _{end_date}_:')
 
-        with sns.axes_style("light"):
+        with sns.axes_style("dark"):
             df_graph = df_result[df_result['metrics.testPositivityRatio'] != 0]
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.testPositivityRatio")
