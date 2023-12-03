@@ -210,7 +210,7 @@ if st.button('Intercorrelation Heatmap'):
     corr = df_result.corr()
     mask = np.zeros_like(corr)
     mask[np.triu_indices_from(mask)] = True
-    with sns.axes_style("white"):
+    with sns.axes_style("dark"):
         f, ax = plt.subplots(figsize=(15, 10))
         ax = sns.heatmap(corr, mask=mask, vmin=-1, vmax=1, annot=True)
     st.pyplot(f)
