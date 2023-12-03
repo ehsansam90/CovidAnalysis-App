@@ -166,7 +166,7 @@ with col1:
     if st.button('All the cases'):
         st.write(f'New Cases trend from _{start_date}_ to _{end_date}_:')
 
-        with sns.axes_style("dark"):
+        with sns.axes_style("white"):
             df_graph = df_result[df_result['actuals.cases'] != 0]
             df_graph['actuals.cases'] = df_graph['actuals.cases'].dropna()
             f, ax = plt.subplots(figsize=(7, 5))
