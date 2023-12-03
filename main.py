@@ -23,6 +23,19 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.markdown(
+    """
+    <style>
+        body {
+            background-color: #FFFFFF;  /* Set your preferred background color here */
+            color: #262730;  /* Set your preferred text color here */
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 def filedownload(df,startDate,endDate,state):
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
