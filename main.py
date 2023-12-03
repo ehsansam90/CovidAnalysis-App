@@ -145,7 +145,7 @@ result['cases'] = result['actuals.cases'] / result['actuals.cases'].sum() * 100
 result['deaths'] = result['actuals.deaths'] / result['actuals.deaths'].sum() * 100
 
 # Streamlit app
-st.title('Side-by-Side Percentage Bar Plot for Aggregated Columns')
+st.title('Side-by-Side Percentage Bar Plot for all states')
 
 fig, ax = plt.subplots(figsize=(20, 10))  # Increased figure width
 
