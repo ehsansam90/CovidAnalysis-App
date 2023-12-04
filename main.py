@@ -195,7 +195,7 @@ with col2:
     if st.button('Positive tests Ratio'):
         st.write(f'Positive test ratio from _{start_date}_ to _{end_date}_:')
 
-        with sns.axes_style("dark"):
+        with sns.axes_style("white"):
             df_graph = df_result[df_result['metrics.testPositivityRatio'] != 0]
             f, ax = plt.subplots(figsize=(7, 5))
             ax = sns.lineplot(data=df_graph, x=df_graph.index, y="metrics.testPositivityRatio")
@@ -215,7 +215,7 @@ with col3:
     if st.button('Vaccinated initiated ratio'):
         st.write(f'Vaccinated initiated from _{start_date}_ to _{end_date}_:')
 
-        with sns.axes_style("dark"):
+        with sns.axes_style("white"):
             df_graph = df_result[df_result['metrics.vaccinationsInitiatedRatio'] != 0]
             f, ax = plt.subplots(figsize=(7, 5))
             df_graph['metrics.vaccinationsInitiatedRatio'] = df_graph['metrics.vaccinationsInitiatedRatio'].dropna()
@@ -252,9 +252,9 @@ if st.button('Comparison'):
         st.header(f'Comparison between: {" & ".join([states[state] for state in selected_states])}')
 
         st.bar_chart(df_result.set_index('state'))
-        with sns.axes_style("dark"):
+        with sns.axes_style("white"):
             st.set_option('deprecation.showPyplotGlobalUse', False)
-            plt.style.use("dark_background")
+            plt.style.use("white_background")
             f, ax = plt.subplots(figsize=(7, 5))
             df_result.plot(x='state', y=["deathRatio", "vaccinatedRatio"], kind="bar", rot=0)
         st.pyplot()
