@@ -153,6 +153,7 @@ bars_cases = ax.bar(result['state'], result['cases'], label='Total Cases Percent
 
 bars_deaths = ax.bar(result['state'], result['deaths'], label='Deaths Percentage', width=-0.6, align='edge', alpha=0.7)  # Increased width
 
+ax.set_facecolor('white')
 ax.set_xlabel('State')
 ax.set_ylabel('Percentage')
 ax.set_title('Percentage bar for distribution of Total new cases and new death per State')
