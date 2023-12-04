@@ -255,7 +255,7 @@ if st.button('Comparison'):
         st.bar_chart(df_result.set_index('state'))
         with sns.axes_style("white"):
             st.set_option('deprecation.showPyplotGlobalUse', False)
-            plt.style.use("white_background")
+            plt.style.use("classic")
             f, ax = plt.subplots(figsize=(7, 5))
             df_result.plot(x='state', y=["deathRatio", "vaccinatedRatio"], kind="bar", rot=0)
         st.pyplot()
