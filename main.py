@@ -225,7 +225,8 @@ with col3:
 
 if st.button('Intercorrelation Heatmap'):
     st.header('Intercorrelation Matrix Heatmap')
-
+    
+    df_result = df_result.dropna()
     corr = df_result.corr()
     mask = np.zeros_like(corr)
     mask[np.triu_indices_from(mask)] = True
