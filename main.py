@@ -184,6 +184,8 @@ col1, col2, col3= st.columns([10,10,10])
 with col1:
     if st.button('All the cases'):
         st.write(f'New Cases trend from _{start_date}_ to _{end_date}_:')
+        df_result = df_result.dropna()
+
 
         with sns.axes_style("white"):
             df_graph = df_result[df_result['actuals.cases'] != 0]
@@ -195,6 +197,8 @@ with col1:
 with col2:
     if st.button('Positive tests Ratio'):
         st.write(f'Positive test ratio from _{start_date}_ to _{end_date}_:')
+        df_result = df_result.dropna()
+
 
         with sns.axes_style("white"):
             df_graph = df_result[df_result['metrics.testPositivityRatio'] != 0]
@@ -215,6 +219,8 @@ with col2:
 with col3:
     if st.button('Vaccinated initiated ratio'):
         st.write(f'Vaccinated initiated from _{start_date}_ to _{end_date}_:')
+        df_result = df_result.dropna()
+
 
         with sns.axes_style("white"):
             df_graph = df_result[df_result['metrics.vaccinationsInitiatedRatio'] != 0]
