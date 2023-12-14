@@ -227,7 +227,9 @@ if st.button('Intercorrelation Heatmap'):
     st.header('Intercorrelation Matrix Heatmap')
     
     df_result = df_result.dropna()
-    corr = df_result.corr()
+    numeric_columns = df_result.select_dtypes(include=['number']).columns
+    df_numeric = df_result[numeric_columns]
+    corr = df_numeric.corr()
     mask = np.zeros_like(corr)
     mask[np.triu_indices_from(mask)] = True
     with sns.axes_style("white"):
