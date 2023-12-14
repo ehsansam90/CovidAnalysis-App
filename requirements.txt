@@ -4,5 +4,5 @@ pandas
 plotly==5.11.0
 python-dotenv==0.21.0
 requests==2.28.1
-seaborn==0.12.1
+seaborn
 streamlit==1.15.2
