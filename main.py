@@ -45,7 +45,10 @@ def filedownload(df,startDate,endDate,state):
 key = os.getenv("KEY")
 url = "https://api.covidactnow.org/v2/states.timeseries.csv?apiKey=" + key
 url_current = "https://api.covidactnow.org/v2/states.csv?apiKey=" + key
-df = pd.read_csv(url)
+try:
+    df = pd.read_csv(url)
+except:
+    print("Service under maintenence")
 
 columns = ['state','actuals.newCases','actuals.cases','metrics.caseDensity','metrics.weeklyNewCasesPer100k','metrics.infectionRate',
  'actuals.positiveTests','actuals.negativeTests','metrics.testPositivityRatio','actuals.icuBeds.currentUsageCovid',
