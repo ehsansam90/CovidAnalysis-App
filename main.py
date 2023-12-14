@@ -88,7 +88,7 @@ st.plotly_chart(fig)
 #selected_year = st.sidebar.selectbox('Year', list(reversed(range(1950, 2020))))
 default_start_date = datetime.date(2021, 10, 10)
 default_end_date = datetime.date(2022, 10, 10)
-start_date = st.sidebar.date_input('Start date', default_start_date))
+start_date = st.sidebar.date_input('Start date', default_start_date)
 end_date = st.sidebar.date_input('End date', default_end_date)
 
 if start_date < end_date:
