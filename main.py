@@ -17,7 +17,7 @@ load_dotenv()
 
 
 st.set_page_config(
-    page_title="Covid 19 Analysis across US",
+    page_title="Covid-19 Analysis across US",
     page_icon="🦠",
     layout="wide",
     initial_sidebar_state="expanded",
